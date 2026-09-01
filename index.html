@@ -300,21 +300,25 @@
         }
     }
 
-    function updateCities() {
-        const stateSelect = document.getElementById('state').value;
-        const citySelect = document.getElementById('city');
-        citySelect.innerHTML = '';
-        if (typeof cityData !== 'undefined') {
-            const cities = cityData[stateSelect] || ["All Cities"];
-            cities.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c === "All Cities" ? "" : c;
-                opt.textContent = c;
-                citySelect.appendChild(opt);
-            });
-        }
-        if (typeof updateClocks === 'function') updateClocks();
+// Replace updateCities call in index.html
+function updateCities() {
+    const stateSelect = document.getElementById('state').value;
+    const citySelect = document.getElementById('city');
+    citySelect.innerHTML = '';
+    if (typeof cityData !== 'undefined') {
+        const cities = cityData[stateSelect] || ["All Cities"];
+        cities.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c === "All Cities" ? "" : c;
+            opt.textContent = c;
+            citySelect.appendChild(opt);
+        });
     }
+    // Safe invocation check
+    if (typeof updateClocks === 'function') {
+        updateClocks();
+    }
+}
 
     function setKeyword(val) {
         document.getElementById('keyword').value = val;
