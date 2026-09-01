@@ -3,255 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Provider Search</title>
+    <title>Provider Search</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --muted-color: #94a3b8;
-            --border-color: #334155;
-            --accent-color: #0284c7;
-            --accent-hover: #0369a1;
+            --bg-color: #fbf9f5;
+            --card-bg: #ffffff;
+            --text-color: #1a1915;
+            --muted-color: #66635b;
+            --border-color: #e6e4dd;
+            --accent-color: #da7756;
+            --accent-hover: #cc6443;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-serif: "Georgia", serif;
         }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #181816;
+                --card-bg: #22221f;
+                --text-color: #f3f3ee;
+                --muted-color: #9e9b91;
+                --border-color: #363530;
+                --accent-color: #da7756;
+                --accent-hover: #e58767;
+            }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: var(--font-family);
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 40px 20px;
+            padding: 48px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+        .layout-wrapper {
+            width: 100%;
+            max-width: 1280px;
+            display: grid;
+            grid-template-columns: 280px minmax(0, 580px) 280px;
+            gap: 24px;
+            align-items: start;
+            justify-content: center;
         }
 
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+        @media (max-width: 1100px) {
+            .layout-wrapper {
+                grid-template-columns: 1fr;
+                max-width: 580px;
+            }
         }
 
-        .card {
+        .side-panel {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 16px;
+        .side-panel-title {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: 4px;
         }
 
-        .form-row {
-            display: flex;
-            gap: 12px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            cursor: pointer;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--accent-color);
-            cursor: pointer;
-        }
-
-        label {
-            font-size: 0.85rem;
-            font-weight: 600;
+        .side-panel-sub {
+            font-size: 0.75rem;
             color: var(--muted-color);
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
-        input[type="text"], select {
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
+        .tz-list { display: flex; flex-direction: column; gap: 12px; }
+        .tz-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed var(--border-color); }
+        .tz-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .tz-name { font-size: 0.85rem; font-weight: 600; color: var(--text-color); }
+        .tz-states { font-size: 0.75rem; color: var(--muted-color); }
+        .tz-code { font-size: 0.75rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--accent-color); }
 
-        input[type="text"]:focus, select:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
+        .clock-display { text-align: center; padding: 12px 0 20px; border-bottom: 1px solid var(--border-color); margin-bottom: 16px; }
+        .clock-time { font-family: var(--font-serif); font-size: 2.25rem; font-weight: 400; color: var(--text-color); letter-spacing: -0.02em; line-height: 1; margin-bottom: 6px; }
+        .clock-date { font-size: 0.8rem; color: var(--muted-color); }
 
-        .preset-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
+        .year-progress-container { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .year-progress-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-bottom: 8px; }
+        .year-progress-title { font-weight: 600; color: var(--text-color); }
+        .year-progress-percent { font-weight: 600; color: var(--accent-color); font-variant-numeric: tabular-nums; }
+        .progress-bar-track { width: 100%; height: 8px; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background-color: var(--accent-color); width: 0%; }
 
-        .preset-chip {
-            background-color: var(--border-color);
-            color: var(--text-color);
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            border: none;
-        }
+        .state-time-list { display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; padding-right: 4px; }
+        .state-time-list::-webkit-scrollbar { width: 4px; }
+        .state-time-list::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
+        .state-time-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; }
+        .state-time-name { color: var(--muted-color); }
+        .state-time-val { font-weight: 500; color: var(--text-color); font-variant-numeric: tabular-nums; }
 
-        .preset-chip:hover {
-            background-color: var(--accent-color);
-        }
+        .container { width: 100%; }
+        header { margin-bottom: 24px; }
+        h1 { font-family: var(--font-serif); font-size: 1.75rem; font-weight: 400; letter-spacing: -0.01em; color: var(--text-color); margin-bottom: 6px; }
+        p.subtitle { font-size: 0.9rem; color: var(--muted-color); }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 28px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); }
 
-        button.btn-primary {
-            width: 100%;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
-        }
+        .preset-bar { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+        .preset-chip { background-color: transparent; color: var(--muted-color); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; border: 1px solid var(--border-color); transition: all 0.15s ease; }
+        .preset-chip:hover { border-color: var(--accent-color); color: var(--accent-color); background-color: rgba(218, 119, 86, 0.05); }
 
-        button.btn-primary:hover {
-            background-color: var(--accent-hover);
-        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+        .form-row { display: flex; gap: 12px; }
+        .form-row .form-group { flex: 1; }
+        label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-color); }
+        input[type="text"], select { background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 14px; border-radius: 8px; font-size: 0.95rem; font-family: inherit; transition: border-color 0.15s ease; width: 100%; }
+        input[type="text"]:focus, select:focus { outline: none; border-color: var(--accent-color); }
+
+        .filters-section { border-top: 1px solid var(--border-color); margin-top: 20px; padding-top: 16px; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer; font-size: 0.88rem; color: var(--text-color); user-select: none; }
+        .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-color); cursor: pointer; border-radius: 4px; }
+        .invert-box { margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--border-color); }
+        .invert-box span { color: var(--accent-color); font-weight: 600; }
+
+        .button-group { display: flex; gap: 10px; margin-top: 24px; }
+        button.btn-primary { flex: 2; background-color: var(--accent-color); color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; font-family: inherit; cursor: pointer; transition: background-color 0.15s ease; }
+        button.btn-primary:hover { background-color: var(--accent-hover); }
+        button.btn-secondary { flex: 1; background-color: transparent; color: var(--text-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.15s ease; }
+        button.btn-secondary:hover { border-color: var(--muted-color); background-color: rgba(0, 0, 0, 0.02); }
+
+        .engine-launcher { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center; }
+        .engine-launcher select { flex: 1; }
+        .engine-launcher button { flex: 1; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Medical Provider Finder</h1>
-
-    <div class="card">
-        <div class="preset-bar">
-            <button class="preset-chip" onclick="setKeyword('Workers\' Compensation / Work Injury')">Workers' Comp</button>
-            <button class="preset-chip" onclick="setKeyword('Personal Injury / Auto Accident / Lien')">Personal Injury</button>
-            <button class="preset-chip" onclick="setKeyword('Regular Insurance / HMO / PPO')">Regular Insurance</button>
-            <button class="preset-chip" onclick="setKeyword('Cash Pay / Self Pay / DPC')">Cash Pay</button>
+<div class="layout-wrapper">
+    <aside class="side-panel">
+        <h2 class="side-panel-title">Time Zones</h2>
+        <p class="side-panel-sub">US Regional Zones</p>
+        <div class="tz-list">
+            <div class="tz-item"><div><div class="tz-name">Eastern</div><div class="tz-states">NY, FL, PA, GA +19</div></div><span class="tz-code">ET</span></div>
+            <div class="tz-item"><div><div class="tz-name">Central</div><div class="tz-states">TX, IL, MO +17</div></div><span class="tz-code">CT</span></div>
+            <div class="tz-item"><div><div class="tz-name">Mountain</div><div class="tz-states">CO, AZ, UT, NM +3</div></div><span class="tz-code">MT</span></div>
+            <div class="tz-item"><div><div class="tz-name">Pacific</div><div class="tz-states">CA, WA, OR, NV</div></div><span class="tz-code">PT</span></div>
+            <div class="tz-item"><div><div class="tz-name">Alaska</div><div class="tz-states">AK</div></div><span class="tz-code">AKT</span></div>
+            <div class="tz-item"><div><div class="tz-name">Hawaii</div><div class="tz-states">HI</div></div><span class="tz-code">HST</span></div>
         </div>
+    </aside>
 
-        <div class="form-group">
-            <label for="specialty">Specialty</label>
-            <input type="text" id="specialty" list="specialty-list" placeholder="e.g. Chiropractor, Physical Therapy, MD" autocomplete="off">
-            <datalist id="specialty-list">
-                <option value="Acupuncturist">
-                <option value="Chiropractor">
-                <option value="Dentist">
-                <option value="Dermatologist">
-                <option value="Family Medicine">
-                <option value="Internal Medicine">
-                <option value="Neurologist">
-                <option value="Occupational Therapy">
-                <option value="Orthopedic Surgeon">
-                <option value="Pain Management">
-                <option value="Physiatrist (PM&R)">
-                <option value="Physical Therapy">
-                <option value="Podiatrist">
-                <option value="Psychiatrist">
-                <option value="Urgent Care">
-            </datalist>
-        </div>
+    <main class="container">
+        <header>
+            <h1>Medical Provider Finder</h1>
+            <p class="subtitle">Targeted Google search query builder</p>
+        </header>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label for="state">State</label>
-                <select id="state" onchange="updateCities()">
-                    <!-- Populated from locations.js -->
-                </select>
+        <div class="card">
+            <div class="preset-bar">
+                <button class="preset-chip" onclick="setKeyword('Workers\' Compensation / Work Injury')">Workers' Comp</button>
+                <button class="preset-chip" onclick="setKeyword('Personal Injury / Auto Accident / Lien')">Personal Injury</button>
+                <button class="preset-chip" onclick="setKeyword('Regular Insurance / HMO / PPO')">Regular Insurance</button>
+                <button class="preset-chip" onclick="setKeyword('Cash Pay / Self Pay / DPC')">Cash Pay</button>
             </div>
 
             <div class="form-group">
-                <label for="city">City</label>
-                <select id="city">
-                    <!-- Populated from locations.js -->
+                <label for="specialty">Specialty</label>
+                <input type="text" id="specialty" list="specialty-list" placeholder="e.g. Chiropractor, Physical Therapy, MD" autocomplete="off">
+                <datalist id="specialty-list">
+                    <option value="Acupuncturist">
+                    <option value="Chiropractor">
+                    <option value="Dentist">
+                    <option value="Dermatologist">
+                    <option value="Family Medicine">
+                    <option value="Internal Medicine">
+                    <option value="Neurologist">
+                    <option value="Occupational Therapy">
+                    <option value="Orthopedic Surgeon">
+                    <option value="Pain Management">
+                    <option value="Physiatrist (PM&R)">
+                    <option value="Physical Therapy">
+                    <option value="Podiatrist">
+                    <option value="Psychiatrist">
+                    <option value="Urgent Care">
+                </datalist>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <select id="state" onchange="updateCities()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <select id="city"></select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="keyword">Claim Type / Insurance / Keyword</label>
+                <input type="text" id="keyword" list="claim-list" placeholder="Select or type claim type..." oninput="suggestClaimType(this.value)">
+                <datalist id="claim-list">
+                    <option value="Workers' Compensation / Work Injury">
+                    <option value="Personal Injury / Auto Accident / Lien">
+                    <option value="QME / IME / Med-Legal">
+                    <option value="Regular Insurance / HMO / PPO">
+                    <option value="Cash Pay / Self Pay / DPC">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <label for="negatives">Exclusions</label>
+                <input type="text" id="negatives" value="-law -attorney -lawyer -legal">
+            </div>
+
+            <div class="filters-section">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="filterJobEngines" checked>
+                    <span id="labelJobEngines">Exclude Job Engines (LinkedIn, Indeed, Glassdoor, ZipRecruiter)</span>
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="filterDirectories" checked>
+                    <span id="labelDirectories">Exclude Directories (ZocDoc, Yelp, Healthgrades, Vitals, RateMDs)</span>
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="filterSocial">
+                    <span id="labelSocial">Exclude Social Media (Facebook, Instagram, LinkedIn, Twitter/X)</span>
+                </label>
+                <label class="checkbox-group invert-box">
+                    <input type="checkbox" id="invertFilter" onchange="toggleInvertMode()">
+                    <span>Invert Mode (Target Checked Categories ONLY)</span>
+                </label>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="search()">Search</button>
+                <button class="btn-secondary" onclick="copyQuery()">Copy String</button>
+            </div>
+
+            <div class="engine-launcher">
+                <select id="engineSelect">
+                    <option value="https://kagi.com">Kagi</option>
+                    <option value="https://startpage.com">Startpage</option>
+                    <option value="https://duckduckgo.com">DuckDuckGo</option>
+                    <option value="https://search.yahoo.com">Yahoo</option>
+                    <option value="https://www.bing.com">Bing</option>
                 </select>
+                <button class="btn-secondary" onclick="openEngine()">Open Engine</button>
+            </div>
+        </div>
+    </main>
+
+    <aside class="side-panel">
+        <h2 class="side-panel-title">Live Clock</h2>
+        <p class="side-panel-sub">Real-Time & Progress</p>
+        
+        <div class="clock-display">
+            <div class="clock-time" id="localClock">00:00:00</div>
+            <div class="clock-date" id="localDate">Local Time</div>
+        </div>
+
+        <div class="year-progress-container">
+            <div class="year-progress-header">
+                <span class="year-progress-title" id="yearLabel">Year Progress</span>
+                <span class="year-progress-percent" id="yearPercent">0%</span>
+            </div>
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="yearFill"></div>
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="keyword">Claim Type / Insurance / Keyword</label>
-            <input type="text" id="keyword" list="claim-list" placeholder="Select or type claim type..." oninput="suggestClaimType(this.value)">
-            <datalist id="claim-list">
-                <option value="Workers' Compensation / Work Injury">
-                <option value="Personal Injury / Auto Accident / Lien">
-                <option value="QME / IME / Med-Legal">
-                <option value="Regular Insurance / HMO / PPO">
-                <option value="Cash Pay / Self Pay / DPC">
-            </datalist>
-        </div>
-
-        <div class="form-group">
-            <label for="negatives">Negative Words / Exclusions</label>
-            <input type="text" id="negatives" value="-law -attorney -lawyer -legal">
-        </div>
-
-       <label class="checkbox-group">
-    <input type="checkbox" id="filterJobEngines" checked>
-    <span id="labelJobEngines">Exclude Job Engines (LinkedIn, Indeed, Glassdoor, ZipRecruiter)</span>
-</label>
-
-<label class="checkbox-group">
-    <input type="checkbox" id="filterDirectories" checked>
-    <span id="labelDirectories">Exclude Directories (ZocDoc, Yelp, Healthgrades, Vitals, RateMDs)</span>
-</label>
-
-<label class="checkbox-group">
-    <input type="checkbox" id="filterSocial">
-    <span id="labelSocial">Exclude Social Media (Facebook, Instagram, LinkedIn, Twitter/X)</span>
-</label>
-
-<label class="checkbox-group" style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 12px;">
-    <input type="checkbox" id="invertFilter" onchange="toggleInvertMode()">
-    <span style="color: #38bdf8; font-weight: bold;">Invert Mode (Target Checked Categories ONLY)</span>
-</label>
-
-        <button class="btn-primary" onclick="search()">Search</button>
-    </div>
+        <div class="state-time-list" id="stateTimeList"></div>
+    </aside>
 </div>
 
-<!-- EXTERNAL LOCATION DATA MODULE -->
 <script src="locations.js"></script>
-
+<script src="widgets.js"></script>
 <script>
     function initLocations() {
         const stateSelect = document.getElementById('state');
         stateSelect.innerHTML = '';
-
-        stateList.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s.code;
-            opt.textContent = `${s.name} (${s.code})`;
-            if (s.code === 'CA') opt.selected = true;
-            stateSelect.appendChild(opt);
-        });
-        updateCities();
+        if (typeof stateList !== 'undefined') {
+            stateList.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.code;
+                opt.textContent = `${s.name} (${s.code})`;
+                if (s.code === 'CA') opt.selected = true;
+                stateSelect.appendChild(opt);
+            });
+            updateCities();
+        }
     }
 
     function updateCities() {
         const stateSelect = document.getElementById('state').value;
         const citySelect = document.getElementById('city');
         citySelect.innerHTML = '';
-
-        const cities = cityData[stateSelect] || ["All Cities"];
-        cities.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c === "All Cities" ? "" : c;
-            opt.textContent = c;
-            citySelect.appendChild(opt);
-        });
+        if (typeof cityData !== 'undefined') {
+            const cities = cityData[stateSelect] || ["All Cities"];
+            cities.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c === "All Cities" ? "" : c;
+                opt.textContent = c;
+                citySelect.appendChild(opt);
+            });
+        }
+        if (typeof updateClocks === 'function') updateClocks();
     }
 
     function setKeyword(val) {
@@ -262,7 +324,6 @@
     function suggestClaimType(val) {
         const clean = val.toLowerCase().trim();
         const datalist = document.getElementById('claim-list');
-
         if (clean.includes('work') || clean.includes('comp') || clean.includes('job') || clean.includes('industrial')) {
             datalist.innerHTML = `
                 <option value="Workers' Compensation / Work Injury">
@@ -286,129 +347,125 @@
         }
     }
 
-function buildStructuredBackendQuery(rawSpec, state, city, rawKw, rawNegatives) {
-    let structuredTerms = [];
-
-    // Checkbox states
-    const filterJobs = document.getElementById('filterJobEngines').checked;
-    const filterDirs = document.getElementById('filterDirectories').checked;
-    const filterSocial = document.getElementById('filterSocial').checked;
-    const invertMode = document.getElementById('invertFilter').checked;
-
-    // Category Site Arrays
-    const jobsSites = ["linkedin.com", "indeed.com", "glassdoor.com", "ziprecruiter.com", "monster.com", "simplyhired.com"];
-    const dirSites = ["zocdoc.com", "yelp.com", "healthgrades.com", "vitals.com", "ratemds.com", "yellowpages.com"];
-    const socialSites = ["facebook.com", "instagram.com", "twitter.com", "x.com", "linkedin.com", "tiktok.com"];
-
-    // 1. Specialty
-    if (rawSpec.trim()) {
-        const cleanSpec = rawSpec.trim().toLowerCase();
-        const specMap = {
-            'chiropractor': '(Chiropractor OR Chiropractic)',
-            'chiro': '(Chiropractor OR Chiropractic)',
-            'md': '(MD OR Physician OR Doctor)',
-            'physical therapy': '("Physical Therapy" OR PT)',
-            'pain management': '"Pain Management"',
-            'orthopedic': 'Orthopedic'
-        };
-        structuredTerms.push(specMap[cleanSpec] || `"${rawSpec.trim()}"`);
-    }
-
-    // 2. Location
-    if (city && state) {
-        structuredTerms.push(`"${city}" "${state}"`);
-    } else if (state) {
-        structuredTerms.push(`"${state}"`);
-    }
-
-    // 3. Keywords
-    if (rawKw.trim()) {
-        const cleanKw = rawKw.trim().toLowerCase();
-        if (cleanKw.includes('work') || cleanKw.includes('comp') || cleanKw.includes('job') || cleanKw.includes('industrial')) {
-            structuredTerms.push('("workers compensation" OR "workers comp" OR "workmans comp" OR "work injury")');
-        } else if (cleanKw.includes('insur') || cleanKw.includes('hmo') || cleanKw.includes('ppo') || cleanKw.includes('regular')) {
-            structuredTerms.push('("accepted insurance" OR "in-network" OR PPO OR HMO)');
-        } else if (cleanKw.includes('med legal') || cleanKw.includes('qme') || cleanKw.includes('ime')) {
-            structuredTerms.push('(QME OR IME OR "med-legal")');
-        } else if (cleanKw.includes('personal injury') || cleanKw.includes('pi') || cleanKw.includes('lien') || cleanKw.includes('accident')) {
-            structuredTerms.push('("personal injury" OR "medical lien" OR LOP)');
-        } else if (cleanKw.includes('cash') || cleanKw.includes('self pay')) {
-            structuredTerms.push('("self-pay" OR "cash pay" OR "direct primary care")');
-        } else {
-            structuredTerms.push(`"${rawKw.trim()}"`);
-        }
-    }
-
-    // 4. Invert Mode Logic (Target ONLY checked vs Exclude checked)
-    if (invertMode) {
-        let allowedSites = [];
-        if (filterJobs) allowedSites.push(...jobsSites);
-        if (filterDirs) allowedSites.push(...dirSites);
-        if (filterSocial) allowedSites.push(...socialSites);
-
-        if (allowedSites.length > 0) {
-            const siteQuery = allowedSites.map(s => `site:${s}`).join(' OR ');
-            structuredTerms.push(`(${siteQuery})`);
-        }
-    } else {
-        // Exclusion Mode
-        let excludedSites = [];
-        if (filterJobs) excludedSites.push(...jobsSites, "jobs");
-        if (filterDirs) excludedSites.push(...dirSites);
-        if (filterSocial) excludedSites.push(...socialSites);
-
-        if (excludedSites.length > 0) {
-            const siteQuery = excludedSites.map(s => s.includes('.') ? `-site:${s}` : `-${s}`).join(' ');
-            structuredTerms.push(siteQuery);
-        }
-
-        // Default strict legal exclusions
-        structuredTerms.push('-lawyer -attorney -lawfirm -site:*.law -inurl:attorney -inurl:lawyer');
-    }
-
-    // 5. Custom Negatives
-    if (rawNegatives.trim()) {
-        const formattedNegs = rawNegatives.trim().split(' ')
-            .map(n => n.startsWith('-') ? n : `-${n}`)
-            .join(' ');
-        structuredTerms.push(formattedNegs);
-    }
-
-    // Build URL (udm=14 for text results)
-    const rawQueryString = structuredTerms.join(' ');
-    return `https://www.google.com/search?udm=14&q=${encodeURIComponent(rawQueryString)}`;
-}
-
-    function search() {
-        const spec = document.getElementById('specialty').value;
+    function buildRawSearchString() {
+        const rawSpec = document.getElementById('specialty').value;
         const state = document.getElementById('state').value;
         const city = document.getElementById('city').value;
-        const kw = document.getElementById('keyword').value;
-        const negs = document.getElementById('negatives').value;
-        const filterJobs = document.getElementById('filterJobEngines').checked;
+        const rawKw = document.getElementById('keyword').value;
+        const rawNegatives = document.getElementById('negatives').value;
 
-        const targetUrl = buildStructuredBackendQuery(spec, state, city, kw, negs, filterJobs);
+        const filterJobs = document.getElementById('filterJobEngines').checked;
+        const filterDirs = document.getElementById('filterDirectories').checked;
+        const filterSocial = document.getElementById('filterSocial').checked;
+        const invertMode = document.getElementById('invertFilter').checked;
+
+        let structuredTerms = [];
+        const jobsSites = ["linkedin.com", "indeed.com", "glassdoor.com", "ziprecruiter.com", "monster.com", "simplyhired.com"];
+        const dirSites = ["zocdoc.com", "yelp.com", "healthgrades.com", "vitals.com", "ratemds.com", "yellowpages.com"];
+        const socialSites = ["facebook.com", "instagram.com", "twitter.com", "x.com", "linkedin.com", "tiktok.com"];
+
+        if (rawSpec.trim()) {
+            const cleanSpec = rawSpec.trim().toLowerCase();
+            const specMap = {
+                'chiropractor': '(Chiropractor OR Chiropractic)',
+                'chiro': '(Chiropractor OR Chiropractic)',
+                'md': '(MD OR Physician OR Doctor)',
+                'physical therapy': '("Physical Therapy" OR PT)',
+                'pain management': '"Pain Management"',
+                'orthopedic': 'Orthopedic'
+            };
+            structuredTerms.push(specMap[cleanSpec] || `"${rawSpec.trim()}"`);
+        }
+
+        if (city && state) {
+            structuredTerms.push(`"${city}" "${state}"`);
+        } else if (state) {
+            structuredTerms.push(`"${state}"`);
+        }
+
+        if (rawKw.trim()) {
+            const cleanKw = rawKw.trim().toLowerCase();
+            if (cleanKw.includes('work') || cleanKw.includes('comp') || cleanKw.includes('job') || cleanKw.includes('industrial')) {
+                structuredTerms.push('("workers compensation" OR "workers comp" OR "workmans comp" OR "work injury")');
+            } else if (cleanKw.includes('insur') || cleanKw.includes('hmo') || cleanKw.includes('ppo') || cleanKw.includes('regular')) {
+                structuredTerms.push('("accepted insurance" OR "in-network" OR PPO OR HMO)');
+            } else if (cleanKw.includes('med legal') || cleanKw.includes('qme') || cleanKw.includes('ime')) {
+                structuredTerms.push('(QME OR IME OR "med-legal")');
+            } else if (cleanKw.includes('personal injury') || cleanKw.includes('pi') || cleanKw.includes('lien') || cleanKw.includes('accident')) {
+                structuredTerms.push('("personal injury" OR "medical lien" OR LOP)');
+            } else if (cleanKw.includes('cash') || cleanKw.includes('self pay')) {
+                structuredTerms.push('("self-pay" OR "cash pay" OR "direct primary care")');
+            } else {
+                structuredTerms.push(`"${rawKw.trim()}"`);
+            }
+        }
+
+        if (invertMode) {
+            let allowedSites = [];
+            if (filterJobs) allowedSites.push(...jobsSites);
+            if (filterDirs) allowedSites.push(...dirSites);
+            if (filterSocial) allowedSites.push(...socialSites);
+
+            if (allowedSites.length > 0) {
+                const siteQuery = allowedSites.map(s => `site:${s}`).join(' OR ');
+                structuredTerms.push(`(${siteQuery})`);
+            }
+        } else {
+            let excludedSites = [];
+            if (filterJobs) excludedSites.push(...jobsSites, "jobs");
+            if (filterDirs) excludedSites.push(...dirSites);
+            if (filterSocial) excludedSites.push(...socialSites);
+
+            if (excludedSites.length > 0) {
+                const siteQuery = excludedSites.map(s => s.includes('.') ? `-site:${s}` : `-${s}`).join(' ');
+                structuredTerms.push(siteQuery);
+            }
+
+            structuredTerms.push('-lawyer -attorney -lawfirm -site:*.law -inurl:attorney -inurl:lawyer');
+        }
+
+        if (rawNegatives.trim()) {
+            const formattedNegs = rawNegatives.trim().split(' ')
+                .map(n => n.startsWith('-') ? n : `-${n}`)
+                .join(' ');
+            structuredTerms.push(formattedNegs);
+        }
+
+        return structuredTerms.join(' ');
+    }
+
+    function search() {
+        const rawQueryString = buildRawSearchString();
+        const targetUrl = `https://www.google.com/search?udm=14&q=${encodeURIComponent(rawQueryString)}`;
         window.open(targetUrl, '_blank');
     }
-function toggleInvertMode() {
-    const isInverted = document.getElementById('invertFilter').checked;
 
-    const labelJobs = document.getElementById('labelJobEngines');
-    const labelDirs = document.getElementById('labelDirectories');
-    const labelSocial = document.getElementById('labelSocial');
-
-    if (isInverted) {
-        labelJobs.textContent = "Include Job Engines ONLY (LinkedIn, Indeed, Glassdoor, ZipRecruiter)";
-        labelDirs.textContent = "Include Directories ONLY (ZocDoc, Yelp, Healthgrades, Vitals, RateMDs)";
-        labelSocial.textContent = "Include Social Media ONLY (Facebook, Instagram, LinkedIn, Twitter/X)";
-    } else {
-        labelJobs.textContent = "Exclude Job Engines (LinkedIn, Indeed, Glassdoor, ZipRecruiter)";
-        labelDirs.textContent = "Exclude Directories (ZocDoc, Yelp, Healthgrades, Vitals, RateMDs)";
-        labelSocial.textContent = "Exclude Social Media (Facebook, Instagram, LinkedIn, Twitter/X)";
+    function copyQuery() {
+        const rawQueryString = buildRawSearchString();
+        navigator.clipboard.writeText(rawQueryString).then(() => {
+            alert("Search string copied to clipboard!");
+        });
     }
-}
-    // Initialize locations on document load
-    initLocations();
+
+    function openEngine() {
+        const targetEngine = document.getElementById('engineSelect').value;
+        window.open(targetEngine, '_blank');
+    }
+
+    function toggleInvertMode() {
+        const isInverted = document.getElementById('invertFilter').checked;
+        document.getElementById('labelJobEngines').textContent = isInverted 
+            ? "Include Job Engines ONLY (LinkedIn, Indeed, Glassdoor, ZipRecruiter)"
+            : "Exclude Job Engines (LinkedIn, Indeed, Glassdoor, ZipRecruiter)";
+        document.getElementById('labelDirectories').textContent = isInverted 
+            ? "Include Directories ONLY (ZocDoc, Yelp, Healthgrades, Vitals, RateMDs)"
+            : "Exclude Directories (ZocDoc, Yelp, Healthgrades, Vitals, RateMDs)";
+        document.getElementById('labelSocial').textContent = isInverted 
+            ? "Include Social Media ONLY (Facebook, Instagram, LinkedIn, Twitter/X)"
+            : "Exclude Social Media (Facebook, Instagram, LinkedIn, Twitter/X)";
+    }
+
+    document.addEventListener('DOMContentLoaded', initLocations);
 </script>
 </body>
 </html>
